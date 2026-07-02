@@ -13,7 +13,7 @@ export async function assignReviewer(
   reviewerName: string,
   journalName: string
 ) {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const adminSupabase = createAdminClient();
 
   // 1. Authenticate Editor
@@ -80,7 +80,7 @@ export async function updateArticleStatus(
   firstPage?: number,
   lastPage?: number
 ) {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   // 1. Authenticate Editor
   const { data: { user } } = await supabase.auth.getUser();

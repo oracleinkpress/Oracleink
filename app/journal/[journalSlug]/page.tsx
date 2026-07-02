@@ -15,7 +15,7 @@ export default async function JournalHome({ params }: JournalHomeProps) {
     notFound();
   }
 
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   // Fetch Latest Issue
   let latestIssue: any = null;

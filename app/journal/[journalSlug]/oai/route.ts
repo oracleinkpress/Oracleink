@@ -78,7 +78,7 @@ export async function GET(request: Request, { params }: RouteParams) {
     }
 
     // Fetch published articles
-    const supabase = createServerClient();
+    const supabase = await createServerClient();
     let articles: any[] = [];
     try {
       const { data } = await supabase

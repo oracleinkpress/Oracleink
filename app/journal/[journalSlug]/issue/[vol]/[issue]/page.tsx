@@ -19,7 +19,7 @@ export default async function IssuePage({ params }: IssuePageProps) {
     notFound();
   }
 
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   let volumeDetails: any = null;
   let issueDetails: any = null;
   let issueArticles: any[] = [];

@@ -15,7 +15,7 @@ export default async function ArchivePage({ params }: ArchivePageProps) {
     notFound();
   }
 
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   let volumes: any[] = [];
 
   try {

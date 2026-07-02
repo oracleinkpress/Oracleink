@@ -14,7 +14,7 @@ export default async function EditorialBoardPage({ params }: EditorialBoardPageP
     notFound();
   }
 
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   let boardMembers: any[] = [];
 
   try {

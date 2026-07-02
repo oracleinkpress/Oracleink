@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function submitManuscript(prevState: any, formData: FormData) {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   
   // 1. Authenticate user
   const { data: { user }, error: authError } = await supabase.auth.getUser();

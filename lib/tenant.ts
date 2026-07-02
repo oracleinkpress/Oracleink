@@ -24,7 +24,7 @@ export interface Journal {
 export const getJournalBySlug = cache(async (slug: string): Promise<Journal | null> => {
   if (!slug) return null;
   
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   const { data, error } = await supabase
     .from("journals")
     .select("*")

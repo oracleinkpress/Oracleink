@@ -20,7 +20,7 @@ export default async function PlatformHome() {
   }
 
   // Fetch journals
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   let journals: any[] = [];
   let fetchError = null;
 

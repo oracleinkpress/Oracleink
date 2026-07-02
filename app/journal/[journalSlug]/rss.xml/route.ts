@@ -20,7 +20,7 @@ export async function GET(request: Request, { params }: RouteParams) {
   const protocol = isLocal ? "http" : "https";
   const hostUrl = `${protocol}://${host}`;
 
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   let articles: any[] = [];
 
   try {

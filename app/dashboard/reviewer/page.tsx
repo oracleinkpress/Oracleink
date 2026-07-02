@@ -25,10 +25,20 @@ export default function ReviewerDashboard() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session) {
+        document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=604800; SameSite=Lax; Secure`;
+      } else {
+        document.cookie = `sb-access-token=; path=/; max-age=0`;
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (session) {
+        document.cookie = `sb-access-token=${session.access_token}; path=/; max-age=604800; SameSite=Lax; Secure`;
+      } else {
+        document.cookie = `sb-access-token=; path=/; max-age=0`;
+      }
     });
 
     return () => subscription.unsubscribe();

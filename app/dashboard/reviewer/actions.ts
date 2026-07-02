@@ -8,7 +8,7 @@ export async function submitReviewRecommendation(
   recommendation: "accept" | "minor_revision" | "major_revision" | "reject",
   comments: string
 ) {
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
 
   // 1. Authenticate user
   const { data: { user } } = await supabase.auth.getUser();

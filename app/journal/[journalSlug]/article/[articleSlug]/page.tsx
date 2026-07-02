@@ -18,7 +18,7 @@ async function fetchArticleAndJournal(journalSlug: string, articleSlug: string) 
   const journal = await getJournalBySlug(journalSlug);
   if (!journal) return null;
 
-  const supabase = createServerClient();
+  const supabase = await createServerClient();
   let article: any = null;
 
   try {
