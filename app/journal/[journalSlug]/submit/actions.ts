@@ -6,11 +6,11 @@ import { sendSubmissionConfirmation } from "@/lib/resend";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-export async function submitManuscript(prevState: any, formData: FormData) {
-  const supabase = await createServerClient();
+export async function submitManuscript(token: string | null, formData: FormData) {
+  const supabase = await createServerClient(token);
   
   // 1. Authenticate user
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token || undefined);
   if (authError || !user) {
     return { success: false, error: "You must be logged in to submit a manuscript." };
   }

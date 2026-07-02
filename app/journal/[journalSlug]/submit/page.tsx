@@ -171,9 +171,15 @@ export default function SubmitPage({ params }: { params: Promise<{ journalSlug: 
     });
 
     try {
-      const response = await submitManuscript(null, formData);
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token || null;
+      const response = await submitManuscript(token, formData);
       if (response && !response.success) {
         setSubmitError(response.error || "Submission failed.");
+      } else if (response && response.success) {
+        // Redirect to a success page or display success message
+        alert("Manuscript submitted successfully!");
+        window.location.href = `/`; // redirects to home of current subdomain
       }
     } catch (err: any) {
       setSubmitError(err.message || "An unexpected error occurred during submission.");
