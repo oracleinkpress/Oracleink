@@ -188,7 +188,10 @@ export default function AdminPage() {
     formData.append("theme_color", themeColor);
 
     try {
-      const res = await createJournal(null, formData);
+      const sessionRes = await supabase.auth.getSession();
+      const token = sessionRes.data.session?.access_token || null;
+      
+      const res = await createJournal(token, formData);
       if (res && res.success) {
         setJournals([...journals, res.journal].sort((a, b) => a.name.localeCompare(b.name)));
         setShowAddJournal(false);
@@ -220,7 +223,10 @@ export default function AdminPage() {
     setAssignError("");
 
     try {
-      const res = await assignUserRole(roleEmail, roleJournalId, roleValue);
+      const sessionRes = await supabase.auth.getSession();
+      const token = sessionRes.data.session?.access_token || null;
+
+      const res = await assignUserRole(token, roleEmail, roleJournalId, roleValue);
       if (res && res.success) {
         const journal = journals.find(j => j.id === roleJournalId);
         

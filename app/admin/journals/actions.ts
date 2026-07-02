@@ -6,8 +6,8 @@ import { revalidatePath } from "next/cache";
 /**
  * Creates a new journal and makes it instantly live.
  */
-export async function createJournal(prevState: any, formData: FormData) {
-  const supabase = await createServerClient();
+export async function createJournal(token: string | null, formData: FormData) {
+  const supabase = await createServerClient(token);
 
   // 1. Authenticate Platform Admin
   const { data: { user } } = await supabase.auth.getUser();
@@ -78,8 +78,8 @@ export async function createJournal(prevState: any, formData: FormData) {
 /**
  * Assigns a dashboard role (editor/reviewer/admin) to a user email.
  */
-export async function assignUserRole(email: string, journalId: string, role: string) {
-  const supabase = await createServerClient();
+export async function assignUserRole(token: string | null, email: string, journalId: string, role: string) {
+  const supabase = await createServerClient(token);
   const adminSupabase = createAdminClient();
 
   // 1. Authenticate Admin
