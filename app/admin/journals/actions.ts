@@ -10,9 +10,12 @@ export async function createJournal(token: string | null, formData: FormData) {
   const supabase = await createServerClient(token);
 
   // 1. Authenticate Platform Admin
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error: authError } = await supabase.auth.getUser(token || undefined);
   if (!user) {
-    return { success: false, error: "Unauthorized. Please log in." };
+    return { 
+      success: false, 
+      error: `Unauthorized. Please log in. (Supabase Auth: ${authError?.message || 'Null user'}, Token len: ${token ? token.length : 0})` 
+    };
   }
 
   // Double check admin role mapping (bypass check for development test account)
