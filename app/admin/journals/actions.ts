@@ -25,7 +25,8 @@ export async function createJournal(token: string | null, formData: FormData) {
 
   // Double check admin role mapping (bypass check for development test account)
   if (user.email !== "test-admin@oracleinkpress.com") {
-    const { data: isPlatAdmin } = await supabase
+    const adminDb = createAdminClient();
+    const { data: isPlatAdmin } = await adminDb
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
@@ -53,8 +54,9 @@ export async function createJournal(token: string | null, formData: FormData) {
 
     const cleanSlug = slug.toLowerCase().replace(/[^a-z0-9-]+/g, "");
 
-    // 2. Insert into journals table
-    const { data, error } = await supabase
+    // 2. Insert into journals table using admin client (bypasses RLS)
+    const adminDb = createAdminClient();
+    const { data, error } = await adminDb
       .from("journals")
       .insert({
         name,
