@@ -31,11 +31,17 @@ export function proxy(req: NextRequest) {
       subdomain = hostParts.slice(0, -1).join(".");
     }
   } else {
-    // Production parsing
-    if (host.endsWith(platformDomain)) {
-      const prefix = host.substring(0, host.length - platformDomain.length - 1);
-      if (prefix && prefix !== "www") {
-        subdomain = prefix;
+    // Production parsing — try matching against configured domain and common patterns
+    const hostname = host.split(":")[0]; // strip port if any
+    const possibleDomains = [platformDomain, "fastinvoice.shop", "oracleinkpress.com"];
+    
+    for (const domain of possibleDomains) {
+      if (hostname.endsWith(domain) && hostname !== domain && hostname !== `www.${domain}`) {
+        const prefix = hostname.substring(0, hostname.length - domain.length - 1);
+        if (prefix && prefix !== "www") {
+          subdomain = prefix;
+          break;
+        }
       }
     }
   }
