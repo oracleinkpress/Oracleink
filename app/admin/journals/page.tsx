@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase/client";
-import { createJournal, assignUserRole } from "./actions";
+import { createJournal, assignUserRole, signInAction, signOutAction } from "./actions";
 import Link from "next/link";
 
 export default function AdminPage() {
@@ -121,17 +121,25 @@ export default function AdminPage() {
   }, [user]);
 
   // Auth Sign In
+  // Auth Sign In
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setAuthError("");
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error: clientError } = await supabase.auth.signInWithPassword({
         email: authEmail,
         password: authPassword,
       });
-      if (error) throw error;
+      if (clientError) throw clientError;
+
+      const res = await signInAction(authEmail, authPassword);
+      if (!res.success) {
+        throw new Error(res.error || "Server session sync failed");
+      }
+      
+      window.location.reload();
     } catch (err: any) {
       setAuthError(err.message || "Sign in failed");
     } finally {
@@ -147,24 +155,17 @@ export default function AdminPage() {
     const mockPassword = "password123";
 
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const res = await signInAction(mockEmail, mockPassword);
+      if (!res.success) {
+        throw new Error(res.error || "Mock server login failed");
+      }
+      
+      await supabase.auth.signInWithPassword({
         email: mockEmail,
         password: mockPassword,
       });
 
-      if (signInError) {
-        const { error: signUpError } = await supabase.auth.signUp({
-          email: mockEmail,
-          password: mockPassword,
-        });
-        if (signUpError) throw signUpError;
-        
-        const { error: reSignIn } = await supabase.auth.signInWithPassword({
-          email: mockEmail,
-          password: mockPassword,
-        });
-        if (reSignIn) throw reSignIn;
-      }
+      window.location.reload();
     } catch (err: any) {
       setAuthError(err.message || "Mock login failed");
     } finally {
@@ -336,7 +337,11 @@ export default function AdminPage() {
           <div className="flex items-center space-x-4 text-xs font-semibold">
             <span className="text-slate-600 hidden sm:inline-block">Admin: {user.email}</span>
             <button
-              onClick={() => supabase.auth.signOut()}
+              onClick={async () => {
+                await supabase.auth.signOut();
+                await signOutAction();
+                window.location.reload();
+              }}
               className="text-slate-400 hover:text-rose-600 border border-slate-200 px-3 py-1.5 rounded-lg transition-colors"
             >
               Sign Out

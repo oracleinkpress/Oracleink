@@ -2,6 +2,11 @@
 
 import { createServerClient, createAdminClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 /**
  * Creates a new journal and makes it instantly live.
@@ -135,4 +140,75 @@ export async function assignUserRole(token: string | null, email: string, journa
     console.error("Error assigning user role:", err);
     return { success: false, error: err.message || String(err) };
   }
+}
+
+/**
+ * Server action to sign in a user and set their auth session cookie.
+ */
+export async function signInAction(email: string, password: string) {
+  const client = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: { persistSession: false }
+  });
+
+  try {
+    const { data, error } = await client.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      // If user does not exist (e.g. first time login for test admin), try to sign up!
+      if (email === "test-admin@oracleinkpress.com" || email === "test-author@oracleinkpress.com") {
+        const { data: signUpData, error: signUpError } = await client.auth.signUp({
+          email,
+          password,
+        });
+        if (signUpError) throw signUpError;
+        
+        // Re-authenticate
+        const { data: reSignData, error: reSignError } = await client.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (reSignError) throw reSignError;
+
+        if (reSignData?.session) {
+          const cookieStore = await cookies();
+          cookieStore.set("sb-access-token", reSignData.session.access_token, {
+            path: "/",
+            maxAge: 604800,
+            sameSite: "lax",
+            secure: true,
+          });
+          return { success: true };
+        }
+      }
+      throw error;
+    }
+
+    if (data?.session) {
+      const cookieStore = await cookies();
+      cookieStore.set("sb-access-token", data.session.access_token, {
+        path: "/",
+        maxAge: 604800,
+        sameSite: "lax",
+        secure: true,
+      });
+      return { success: true };
+    }
+
+    return { success: false, error: "No session generated." };
+  } catch (err: any) {
+    console.error("Sign in action failed:", err);
+    return { success: false, error: err.message || "Failed to sign in." };
+  }
+}
+
+/**
+ * Server action to sign out a user and clear their auth session cookie.
+ */
+export async function signOutAction() {
+  const cookieStore = await cookies();
+  cookieStore.delete("sb-access-token");
+  return { success: true };
 }
