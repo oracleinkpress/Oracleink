@@ -361,7 +361,7 @@ export default async function PlatformHome() {
           <div className="space-y-4">
             <h4 className="text-white text-sm font-bold uppercase tracking-wider">Contact &amp; Support</h4>
             <p className="text-xs text-slate-400">
-              Correspondence Address: UAE / Worldwide Correspondence Office
+              Correspondence Address: Coimbatore, India
             </p>
             <p className="text-xs text-slate-400">
               Support Email: <a href="mailto:contact@oracleinkpress.com" className="text-indigo-400 hover:underline">contact@oracleinkpress.com</a>
